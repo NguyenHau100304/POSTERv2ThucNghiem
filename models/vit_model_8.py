@@ -552,7 +552,7 @@ class VisionTransformer(nn.Module):
 
         self.patch_embed = embed_layer(img_size=img_size, patch_size=patch_size, in_c=256, embed_dim=768)
         num_patches = self.patch_embed.num_patches
-        self.head = ClassificationHead(input_dim=embed_dim, target_dim=self.num_classes)
+        self.head = ClassificationHead(input_dim=embed_dim, target_dim=128)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.dist_token = nn.Parameter(torch.zeros(1, 1, embed_dim)) if distilled else None
         # self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + self.num_tokens, embed_dim))

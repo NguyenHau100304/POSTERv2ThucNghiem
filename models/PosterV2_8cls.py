@@ -308,6 +308,7 @@ class pyramid_trans_expr2(nn.Module):
         o = torch.cat([o1, o2, o3], dim=1)
 
         out = self.VIT(o)
+        print(f'out.shape:{out.shape}')
         return out
 
 def compute_param_flop():
