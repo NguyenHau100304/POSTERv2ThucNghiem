@@ -304,13 +304,14 @@ class ClassificationHead(nn.Module):
             nn.ReLU(inplace=True),
             nn.Dropout(0.3),
             nn.Linear(256, target_dim),
-            nn.BatchNorm1d(target_dim),
-            nn.ReLU(inplace=True)
+            nn.BatchNorm1d(target_dim)   # ❗ KHÔNG ReLU ở cuối
         )
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
-        return self.net(x)
+        x = self.net(x)
+        x = F.normalize(x, dim=-1)
+        return x
 
 
 def load_pretrained_weights(model, checkpoint):
@@ -559,7 +560,7 @@ class VisionTransformer(nn.Module):
 
         self.patch_embed = embed_layer(img_size=img_size, patch_size=patch_size, in_c=256, embed_dim=768)
         num_patches = self.patch_embed.num_patches
-        self.head = ClassificationHead(input_dim=embed_dim, target_dim=128)
+        self.head = ClassificationHead(input_dim=embed_dim, target_dim=512)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.dist_token = nn.Parameter(torch.zeros(1, 1, embed_dim)) if distilled else None
         # self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + self.num_tokens, embed_dim))
