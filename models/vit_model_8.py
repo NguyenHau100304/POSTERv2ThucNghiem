@@ -298,12 +298,19 @@ class Block(nn.Module):
 class ClassificationHead(nn.Module):
     def __init__(self, input_dim: int, target_dim: int):
         super().__init__()
-        self.linear = torch.nn.Linear(input_dim, target_dim)
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.3),
+            nn.Linear(256, target_dim),
+            nn.BatchNorm1d(target_dim),
+            nn.ReLU(inplace=True)
+        )
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
-        y_hat = self.linear(x)
-        return y_hat
+        return self.net(x)
 
 
 def load_pretrained_weights(model, checkpoint):
@@ -628,45 +635,8 @@ class VisionTransformer(nn.Module):
 
     def forward(self, x):
 
-        # B = x.shape[0]
-        # print(x)
-        # x = self.eca_block(x)
-        # x = self.IR(x)
-        # x = eca_block(x)
-        # x = self.ir_back(x)
-        # print(x.shape)
-        # x = self.CON1(x)
-        # x = x.view(-1, 196, 768)
-        #
-        # # print(x.shape)
-        # # x = self.IRLinear1(x)
-        # # print(x)
-        # x_cls = torch.mean(x, 1).view(B, 1, -1)
-        # x = torch.cat((x_cls, x), dim=1)
-        # # print(x.shape)
-        # x = self.pos_drop(x + self.pos_embed)
-        # # print(x.shape)
-        # x = self.blocks(x)
-        # # print(x)
-        # x = self.norm(x)
-        # # print(x)
-        # # x1 = self.IRLinear2(x)
-        # x1 = x[:, 0, :]
-
-        # print(x1)
-        # print(x1.shape)
-
         x = self.forward_features(x)
-        # # print(x.shape)
-        # if self.head_dist is not None:
-        #     x, x_dist = self.head(x[0]), self.head_dist(x[1])
-        #     if self.training and not torch.jit.is_scripting():
-        #         # during inference, return the average of both classifier predictions
-        #         return x, x_dist
-        #     else:
-        #         return (x + x_dist) / 2
-        # else:
-        # print(x.shape)
+       
         x = self.se_block(x)
 
         x1 = self.head(x)
